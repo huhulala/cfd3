@@ -15,7 +15,7 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 	{
 		/********** calculate F **********/
 		/* calculate f and g only between two fluid cells */
-		if (i <= imax - 1 && (Flag[i][j] & 24 == 24))
+		if (i <= imax - 1 && ((Flag[i][j] & 24) == 24))
 		{
 				F[i][j] = U[i][j] + dt * (
 				/* 1/Re * (d²u/dx² + d²u/dy²) */
@@ -29,7 +29,7 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 			/* F aus 1.4 bis 1.6 TODO: ? */
 			F[i][j] = U[i][j];
 		/********** calculate G **********/
-		if (j <= jmax - 1 && (Flag[i][j] & 17 == 17))
+		if (j <= jmax - 1 && ((Flag[i][j] & 17) == 17))
 		{
 				G[i][j] = V[i][j] + dt * (
 				/* 1/Re * (d²v/dx² + d²v/dy²) */
@@ -114,11 +114,11 @@ void calculate_uv(double dt, double dx, double dy, int imax, int jmax,
 	for (i = 1; i <= imax; i++)
 	{
 		/* claculate for neighbouring fluid cells */
-		if (i <= imax - 1 && (Flag[i][j] & 24 == 24))
+		if (i <= imax - 1 && ((Flag[i][j] & 24) == 24))
 		{
 				U[i][j] = F[i][j] - dtdx * (P[i + 1][j] - P[i][j]);
 		}
-		if (j <= jmax - 1 && (Flag[i][j] & 17 == 17))
+		if (j <= jmax - 1 && ((Flag[i][j] & 17) == 17))
 		{
 			V[i][j] = G[i][j] - dtdy * (P[i][j + 1] - P[i][j]);
 		}

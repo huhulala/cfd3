@@ -1,5 +1,6 @@
 #include "boundary_val.h"
 #include "NSDefinitions.h"
+#include <string.h>
 
 void boundaryvalues(int imax, int jmax, double **U, double **V, int wl, int wr, int wt, int wb)
 {
