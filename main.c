@@ -48,7 +48,7 @@ int main(int argn, char** args) {
 	double dt,dx,dy;
 	double alpha,omg,tau;
 	double eps, dt_value,res, t;
-	int itermax,it,imax,jmax, n;
+	int itermax,it,imax,jmax,n,wl,wr,wt,wb;
 
 	/* Output filename */
 	char* szProblem;
@@ -90,11 +90,11 @@ int main(int argn, char** args) {
 		/*calculate the delta values*/
 		calculate_dt(Re, tau, &dt, dx, dy, imax, jmax, U, V);
 		/*calculate the boundary values*/
-		boundaryvalues(imax, jmax, U, V);
+		boundaryvalues(imax, jmax, U, V, wl, wr, wt, wb);
 		/* set special boundary values */
 		spec_boundary_val(problem, imax, jmax, U, V);
 		/*calculate F&G*/
-		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G);
+		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G, Flag);
 		/*calculate righthand site*/
 		calculate_rs(dt, dx, dy, imax, jmax, F, G, RS);
 
@@ -108,7 +108,7 @@ int main(int argn, char** args) {
 			it++;
 		}
 		/* calculate uv */
-		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P);
+		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P, Flag);
 		t = t + dt;
 		if(t > n*dt_value)
 		{

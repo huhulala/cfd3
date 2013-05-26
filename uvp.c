@@ -15,6 +15,7 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 	{
 		/********** calculate F **********/
 		/* calculate f and g only between two fluid cells */
+
 		if ((i <= imax - 1) && ((Flag[i][j] & 24) == 24))
 		{
 				F[i][j] = U[i][j] + dt * (
@@ -119,6 +120,7 @@ void calculate_uv(double dt, double dx, double dy, int imax, int jmax,
 				U[i][j] = F[i][j] - dtdx * (P[i + 1][j] - P[i][j]);
 		}
 		if ((j <= jmax - 1) && ((Flag[i][j] & 17) == 17))
+
 		{
 			V[i][j] = G[i][j] - dtdy * (P[i][j + 1] - P[i][j]);
 		}
