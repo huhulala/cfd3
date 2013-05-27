@@ -422,7 +422,7 @@ void init_imatrix( int **m, int nrl, int nrh, int ncl, int nch, int a)
 }
 
 
-int **read_pgm(const char *filename)
+int **read_pgm(const char *filename, int *x_max, int *y_max)
 {
     FILE *input = NULL;
     char line[1024];
@@ -501,5 +501,9 @@ int **read_pgm(const char *filename)
     /* close file */
     fclose(input);
     
+    /* read domain size from the image now */
+    *x_max = xsize;
+    *y_max = ysize;
+
     return pic;
 }

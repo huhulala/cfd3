@@ -50,16 +50,17 @@ int read_parameters(
   double *xlength,
   double *ylength,
   double *dt,
-  double *dx,
-  double *dy,
-  int  *imax,
-  int  *jmax,
   double *alpha,
   double *omg,
   double *tau,
   int  *itermax,
   double *eps,
-  double *dt_value
+  int *wl,
+  int *wr,
+  int *wt,
+  int *wb,
+  double *dt_value,
+  double *deltaP
 );
 
 /**
@@ -76,6 +77,8 @@ void init_uvp(
   double **V,
   double **P
 );
+
+int init_flag(int **Problem,int imax,int jmax, int **Flag);
 
 #endif
 
