@@ -41,35 +41,74 @@
  */
 int main(int argn, char** args) {
 
-	char* szFileName;
-	char* problem;
-	double Re,UI,VI,PI,GX,GY;
-	double t_end,xlength,ylength;
-	double dt,dx,dy;
-	double alpha,omg,tau;
-	double eps, dt_value,res, t;
-	int itermax,it,imax,jmax,n,wl,wr,wt,wb;
+	double Re, UI, VI, PI, GX, GY;
+	double t_end, xlength, ylength;
+	double dt, dx, dy;
+	double alpha, omg, tau;
+	double eps, dt_value, res, t, deltaP;
+	int itermax, it, n;
+
+	int imax = 0;
+	int jmax = 0;
+	int wl = 0;
+	int wr = 0;
+	int wt = 0;
+	int wb = 0;
 
 	/* Output filename */
 	char* szProblem;
+	char* problem;
 
 	/* arrays */
-	double **U;
-	double **V;
-	double **P;
-	double **RS;
-	double **F;
-	double **G;
-	int **Flag;
+	double **U = NULL;
+	double **V = NULL;
+	double **P = NULL;
+	double **RS = NULL;
+	double **F = NULL;
+	double **G = NULL;
+	int **Problem = NULL;
+	int **Flag = NULL;
+
+	char inputString[64];
+    char problemImageName[64];
+	char szFileName[64];
+
+
+	/* check arguments */
+	if (argn <= 1)
+	{
+		printf("ERROR: you need to specify a problem \n");
+		return 1;
+	}
+	if( !( strcmp(args[1], "karman") == 0 || strcmp(args[1], "plane")  == 0 || strcmp(args[1], "step")   == 0))
+	{
+	 	printf("ERROR: pass karman, plane or step\n");
+	    return 1;
+	}
 
 	/*************** the algorithm (see section 5) *************************/
 	szProblem = "./Out/Output";
-	szFileName = "./cavity100.dat";
+	problem = args[1];
+
+	/* load parameters */
+	strcpy(inputString, args[1]);
+    strcpy(szFileName, inputString);
+    strcat(szFileName, ".dat");
+
+    /* grid size (dx,dy,imax,ymax) should now be read from the image */
 	read_parameters(szFileName, &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength,
-			&ylength, &dt, &dx, &dy, &imax, &jmax, &alpha, &omg, &tau,
-			&itermax, &eps, &dt_value);
+			&ylength, &dt, &alpha, &omg, &tau,&itermax, &eps, &wl, &wr, &wt, &wb,
+			&dt_value, &deltaP);
 	t = 0.0;
 	n = 0;
+
+	/*  load problem description */
+    strcpy(problemImageName, inputString);
+    strcat(problemImageName, ".pgm");
+    /*  read imax and jmax (and calculate dx und dy) from problem description now */
+    Problem = read_pgm(problemImageName,&imax,&jmax);
+    dx = xlength / (double)(imax);
+    dy = ylength / (double)(jmax);
 
 	/* allocate memory for the arrays */
 	U = matrix(0, imax + 1, 0, jmax + 1);
@@ -78,15 +117,19 @@ int main(int argn, char** args) {
 	F = matrix(0, imax + 1, 0, jmax + 1);
 	G = matrix(0, imax + 1, 0, jmax + 1);
 	RS = matrix(0, imax + 1, 0, jmax + 1);
-	Flag = imatrix(0, imax+1, 0, jmax + 1);
+	Flag = imatrix(0, imax + 1, 0, jmax + 1);
 
 	/* init uvp */
 	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
 	/* init flag field */
-	init_flag(problem, imax, jmax, Flag);
+	if (init_flag(Problem, imax, jmax, Flag) == 1) {
+		printf("ERROR: Invalid obstacle\n");
+		free_imatrix(Problem, 0, imax + 1, 0, jmax + 1);
+		free_imatrix(Flag, 0, imax + 1, 0, jmax + 1);
+		return 1;
+	}
 
-	while(t < t_end)
-	{
+	while (t < t_end) {
 		/*calculate the delta values*/
 		calculate_dt(Re, tau, &dt, dx, dy, imax, jmax, U, V);
 		/*calculate the boundary values*/
@@ -94,7 +137,8 @@ int main(int argn, char** args) {
 		/* set special boundary values */
 		spec_boundary_val(problem, imax, jmax, U, V);
 		/*calculate F&G*/
-		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G, Flag);
+		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G,
+				Flag);
 		/*calculate righthand site*/
 		calculate_rs(dt, dx, dy, imax, jmax, F, G, RS);
 
@@ -102,23 +146,21 @@ int main(int argn, char** args) {
 		it = 0;
 		res = eps + 1;
 
-		while (it < itermax && res > eps)
-		{
-			sor(omg, dx, dy, imax, jmax, P, RS, &res);
+		while (it < itermax && res > eps) {
+			sor(omg, dx, dy, imax, jmax, P, RS, &res,Flag, problem, deltaP);
 			it++;
 		}
 		/* calculate uv */
 		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P, Flag);
 		t = t + dt;
-		if(t > n*dt_value)
-		{
-			write_vtkFile(szProblem, n, xlength, ylength, imax, jmax, dx, dy,
+		if (t > n * dt_value) {
+			write_vtkFile(szProblem, n, imax, jmax, dx, dy,
 					U, V, P);
 			n++;
 		}
 	}
-	szProblem = "./out2/OutputFinal";
-	write_vtkFile(szProblem, 0, xlength, ylength, imax, jmax, dx, dy, U, V, P);
+	szProblem = "./Out/OutputFinal";
+	write_vtkFile(szProblem, 0, imax, jmax, dx, dy, U, V, P);
 
 	/* free arrays */
 	free_matrix(U, 0, imax + 1, 0, jmax + 1);
