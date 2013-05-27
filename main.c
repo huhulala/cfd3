@@ -39,8 +39,8 @@
  *   iteration loop the operation sor() is used.
  * - calculate_uv() Calculate the velocity at the next time step.
  */
-int main(int argn, char** args) {
-
+int main(int argn, char** args)
+{
 	double Re, UI, VI, PI, GX, GY;
 	double t_end, xlength, ylength;
 	double dt, dx, dy;
@@ -70,9 +70,8 @@ int main(int argn, char** args) {
 	int **Flag = NULL;
 
 	char inputString[64];
-    char problemImageName[64];
+	char problemImageName[64];
 	char szFileName[64];
-
 
 	/* check arguments */
 	if (argn <= 1)
@@ -80,10 +79,12 @@ int main(int argn, char** args) {
 		printf("ERROR: you need to specify a problem \n");
 		return 1;
 	}
-	if( !( strcmp(args[1], "karman") == 0 || strcmp(args[1], "plane")  == 0 || strcmp(args[1], "step")   == 0))
+	if (!(strcmp(args[1], "karman") == 0
+		|| strcmp(args[1], "plane") == 0
+		|| strcmp(args[1], "step") == 0))
 	{
-	 	printf("ERROR: pass karman, plane or step\n");
-	    return 1;
+		printf("ERROR: pass karman, plane or step\n");
+		return 1;
 	}
 
 	/*************** the algorithm (see section 5) *************************/
@@ -92,23 +93,23 @@ int main(int argn, char** args) {
 
 	/* load parameters */
 	strcpy(inputString, args[1]);
-    strcpy(szFileName, inputString);
-    strcat(szFileName, ".dat");
+	strcpy(szFileName, inputString);
+	strcat(szFileName, ".dat");
 
-    /* grid size (dx,dy,imax,ymax) should now be read from the image */
+	/* grid size (dx,dy,imax,ymax) should now be read from the image */
 	read_parameters(szFileName, &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength,
-			&ylength, &dt, &alpha, &omg, &tau,&itermax, &eps, &wl, &wr, &wt, &wb,
-			&dt_value, &deltaP);
+			&ylength, &dt, &alpha, &omg, &tau, &itermax, &eps, &wl, &wr, &wt,
+			&wb, &dt_value, &deltaP);
 	t = 0.0;
 	n = 0;
 
 	/*  load problem description */
-    strcpy(problemImageName, inputString);
-    strcat(problemImageName, ".pgm");
-    /*  read imax and jmax (and calculate dx und dy) from problem description now */
-    Problem = read_pgm(problemImageName,&imax,&jmax);
-    dx = xlength / (double)(imax);
-    dy = ylength / (double)(jmax);
+	strcpy(problemImageName, inputString);
+	strcat(problemImageName, ".pgm");
+	/*  read imax and jmax (and calculate dx und dy) from problem description now */
+	Problem = read_pgm(problemImageName, &imax, &jmax);
+	dx = xlength / (double) (imax);
+	dy = ylength / (double) (jmax);
 
 	/* allocate memory for the arrays */
 	U = matrix(0, imax + 1, 0, jmax + 1);
@@ -122,14 +123,16 @@ int main(int argn, char** args) {
 	/* init uvp */
 	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
 	/* init flag field */
-	if (init_flag(Problem, imax, jmax, Flag) == 1) {
+	if (init_flag(Problem, imax, jmax, Flag) == 1)
+	{
 		printf("ERROR: Invalid obstacle\n");
 		free_imatrix(Problem, 0, imax + 1, 0, jmax + 1);
 		free_imatrix(Flag, 0, imax + 1, 0, jmax + 1);
 		return 1;
 	}
 
-	while (t < t_end) {
+	while (t < t_end)
+	{
 		/*calculate the delta values*/
 		calculate_dt(Re, tau, &dt, dx, dy, imax, jmax, U, V);
 		/*calculate the boundary values*/
@@ -146,16 +149,17 @@ int main(int argn, char** args) {
 		it = 0;
 		res = eps + 1;
 
-		while (it < itermax && res > eps) {
-			sor(omg, dx, dy, imax, jmax, P, RS, &res,Flag, problem, deltaP);
+		while (it < itermax && res > eps)
+		{
+			sor(omg, dx, dy, imax, jmax, P, RS, &res, Flag, problem, deltaP);
 			it++;
 		}
 		/* calculate uv */
 		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P, Flag);
 		t = t + dt;
-		if (t > n * dt_value) {
-			write_vtkFile(szProblem, n, imax, jmax, dx, dy,
-					U, V, P);
+		if (t > n * dt_value)
+		{
+			write_vtkFile(szProblem, n, imax, jmax, dx, dy, U, V, P);
 			n++;
 		}
 	}
@@ -170,6 +174,5 @@ int main(int argn, char** args) {
 	free_matrix(G, 0, imax + 1, 0, jmax + 1);
 	free_matrix(RS, 0, imax + 1, 0, jmax + 1);
 	free_imatrix(Flag, 0, imax + 1, 0, jmax + 1);
-
 	return -1;
 }
