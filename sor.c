@@ -39,7 +39,7 @@ void sor(double omg, double dx, double dy, int imax, int jmax, double **P,
 			}
 		}
 	}
-	rloc = rloc / (imax * jmax);
+	rloc = rloc / fc;
 	rloc = sqrt(rloc);
 	/* set residual */
 	*res = rloc;

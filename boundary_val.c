@@ -62,7 +62,7 @@ void boundaryvalues(int imax, int jmax, double **U, double **V, int wl, int wr, 
 		}
 
 		/* right border */
-		switch(wb)
+		switch(wr)
 		{
 			case NO_SLIP:
 				U[imax][j] = 0.0;
@@ -81,21 +81,21 @@ void boundaryvalues(int imax, int jmax, double **U, double **V, int wl, int wr, 
 }
 
 
-void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V)
+void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V,double Re,double dp)
 {
 	int i,j;
-	double Re, dp;
+	//double Re, dp;
 	/* TODO: wo kommen Re und P her? */
-	Re = 10;
-	dp = 4;
-	if(strcmp(problem, "Driven cavity"))
+	//Re = 10;
+	//dp = 4;
+	if(strcmp(problem, "drivencavity")==0)
 	{
 		for(i=0; i<imax+1; i++)
 		{
 			U[i][jmax] = -U[i][jmax-1] + 2;
 		}
 	}
-	else if(strcmp(problem, "Karman vortex street"))
+	else if(strcmp(problem, "karman")==0)
 	{
 		for(j=0; j<jmax+2; ++j)
 		{
@@ -103,7 +103,7 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 			V[0][j] = 0;
 		}
 	}
-	else if(strcmp(problem, "Plane shear flow"))
+	else if(strcmp(problem, "plane")==0)
 	{
 		for(j=0; j<jmax+2; ++j)
 		{
@@ -111,7 +111,7 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 			V[0][j] = 0;
 		}
 	}
-	else if(strcmp(problem, "Flow over a step"))
+	else if(strcmp(problem, "step")==0)
 	{
 		for(j=0; j<(jmax+2)/2; ++j)
 		{

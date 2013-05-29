@@ -29,41 +29,26 @@ int read_parameters( const char *szFileName,       /* name of the file */
 {
    READ_DOUBLE( szFileName, *xlength );
    READ_DOUBLE( szFileName, *ylength );
-
    READ_DOUBLE( szFileName, *Re    );
    READ_DOUBLE( szFileName, *t_end );
    READ_DOUBLE( szFileName, *dt    );
-
-/* those should be now read from the image
-   READ_INT   ( szFileName, *imax );
-   READ_INT   ( szFileName, *jmax );
-   */
-
    READ_DOUBLE( szFileName, *omg   );
    READ_DOUBLE( szFileName, *eps   );
    READ_DOUBLE( szFileName, *tau   );
    READ_DOUBLE( szFileName, *alpha );
-
-   READ_INT( szFileName, *wl );
-   READ_INT( szFileName, *wr );
-   READ_INT( szFileName, *wt );
-   READ_INT( szFileName, *wb );
-
-   READ_INT   ( szFileName, *itermax );
-   READ_DOUBLE( szFileName, *dt_value );
-
    READ_DOUBLE( szFileName, *UI );
    READ_DOUBLE( szFileName, *VI );
    READ_DOUBLE( szFileName, *GX );
    READ_DOUBLE( szFileName, *GY );
    READ_DOUBLE( szFileName, *PI );
-
+   READ_DOUBLE( szFileName, *dt_value );
    READ_DOUBLE( szFileName, *deltaP );
 
-/*
-   *dx = *xlength / (double)(*imax);
-   *dy = *ylength / (double)(*jmax);
-*/
+   READ_INT( szFileName, *wl );
+   READ_INT( szFileName, *wr );
+   READ_INT( szFileName, *wt );
+   READ_INT( szFileName, *wb );
+   READ_INT   ( szFileName, *itermax );
    return 1;
 }
 
@@ -115,7 +100,6 @@ int init_flag(int **Problem,int imax,int jmax, int **Flag)
         }
     }
 
-    /*boundaries depend on only one neighbouring cell*/
     for(i = 1; i < imax+1; i++)
     {
         Flag[i][0] = 8 * Problem[i][1];
