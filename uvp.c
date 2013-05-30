@@ -6,7 +6,7 @@
 void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 		double dx, double dy, int imax, int jmax, double **U, double **V,
 		double **F, double **G, int **Flag) {
-	/* see formula 9 and 10 in combination with formulas 4 and 5 */
+	/* see formulas 9 and 10 in combination with formulas 4 and 5 */
 	int i;
 	int j;
 
@@ -16,7 +16,7 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 		/********** calculate F **********/
 		/* calculate f and g only between two fluid cells */
 
-		if ((i <= imax - 1) && ((Flag[i][j] & 24) == 24))
+		if ((i <= imax - 1) && (Flag[i+1][j] == C_F && Flag[i][j] == C_F))
 		{
 				F[i][j] = U[i][j] + dt * (
 				/* 1/Re * (d²u/dx² + d²u/dy²) */
@@ -30,13 +30,13 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 			/* F aus 1.4 bis 1.6 TODO: ? */
 			F[i][j] = U[i][j];
 		/********** calculate G **********/
-		if ((j <= jmax - 1) && ((Flag[i][j] & 17) == 17))
+		if ((j <= jmax - 1) && (Flag[i][j+1] == C_F && Flag[i][j] == C_F))
 		{
 				G[i][j] = V[i][j] + dt * (
 				/* 1/Re * (d²v/dx² + d²v/dy²) */
 				1 / Re * (d2vdx2(i, j, V, dx) + d2vdy2(i, j, V, dy))
 				/* - duv/dx */
-				- duvdx(i, j, U, V, dx, dy, alpha)
+				- duvdx(i, j, U, V, dx, alpha)
 				/* - dv²/dy */
 				- dv2dy(i, j, V, dy, alpha) + GY);
 		}
@@ -114,13 +114,12 @@ void calculate_uv(double dt, double dx, double dy, int imax, int jmax,
 	for (j = 1; j <= jmax; j++)
 	for (i = 1; i <= imax; i++)
 	{
-		/* claculate for neighbouring fluid cells */
-		if ((i <= imax - 1) && ((Flag[i][j] & 24 )== 24))
+		/* calculate for neighboring fluid cells */
+		if ((i <= imax - 1)  && (Flag[i+1][j] == C_F && Flag[i][j] == C_F))
 		{
-				U[i][j] = F[i][j] - dtdx * (P[i + 1][j] - P[i][j]);
+			U[i][j] = F[i][j] - dtdx * (P[i + 1][j] - P[i][j]);
 		}
-		if ((j <= jmax - 1) && ((Flag[i][j] & 17) == 17))
-
+		if ((j <= jmax - 1) && (Flag[i][j+1] == C_F && Flag[i][j] == C_F))
 		{
 			V[i][j] = G[i][j] - dtdy * (P[i][j + 1] - P[i][j]);
 		}
