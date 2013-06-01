@@ -1,11 +1,14 @@
+#include "boundary_val.h"
+#include "helper.h"
 #include "uvp.h"
-#include <math.h>
 #include "fd.h"
+#include <math.h>
 #include "NSDefinitions.h"
 
-void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
-		double dx, double dy, int imax, int jmax, double **U, double **V,
-		double **F, double **G, int **Flag) {
+
+void calculate_fg(double Re, double GX, double GY,double alpha, double dt,double dx,double dy, int imax, int jmax,
+		double **U,double **V,double **F,double **G, int **Flag)
+{
 	/* see formulas 9 and 10 in combination with formulas 4 and 5 */
 	int i;
 	int j;
@@ -15,7 +18,6 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 	{
 		/********** calculate F **********/
 		/* calculate f and g only between two fluid cells */
-
 		if ((i <= imax - 1) && (Flag[i+1][j] == C_F && Flag[i][j] == C_F))
 		{
 				F[i][j] = U[i][j] + dt * (
@@ -27,7 +29,7 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 				- duvdy(i, j, U, V, dy, alpha) + GX);
 		}
 		else
-			/* F aus 1.4 bis 1.6 TODO: ? */
+			/* F aus 1.4 bis 1.6  */
 			F[i][j] = U[i][j];
 		/********** calculate G **********/
 		if ((j <= jmax - 1) && (Flag[i][j+1] == C_F && Flag[i][j] == C_F))
@@ -40,7 +42,7 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 				/* - dv²/dy */
 				- dv2dy(i, j, V, dy, alpha) + GY);
 		}
-		/* G aus 1.4 bis 1.6 TODO: ? */
+		/* G aus 1.4 bis 1.6  */
 		else
 			G[i][j] = V[i][j];
 	}
@@ -55,21 +57,6 @@ void calculate_fg(double Re, double GX, double GY, double alpha, double dt,
 	{
 		G[i][0] = V[i][0];
 		G[i][jmax] = V[i][jmax];
-	}
-}
-
-void calculate_rs(double dt, double dx, double dy, int imax, int jmax,
-		double **F, double **G, double **RS) {
-
-	/* right hand side of formula 11 */
-	int i;
-	int j;
-
-	for (j = 1; j <= jmax; j++)
-	for (i = 1; i <= imax; i++)
-	{
-		RS[i][j] = 1 / dt * ((F[i][j] - F[i - 1][j]) / dx + (G[i][j]
-					- G[i][j - 1]) / dy);
 	}
 }
 
@@ -104,76 +91,62 @@ void calculate_dt(double Re, double tau, double *dt, double dx, double dy,
 	*dt = tau * min;
 }
 
-void calculate_uv(double dt, double dx, double dy, int imax, int jmax,
-		double **U, double **V, double **F, double **G, double **P, int **Flag) {
-	/* see formula 7 and 8 */
-	int i,j;
-	double dtdx = dt / dx;
-	double dtdy = dt / dy;
+void calculate_uv(
+  double dt,
+  double dx,
+  double dy,
+  int imax,
+  int jmax,
+  double **U,
+  double **V,
+  double **F,
+  double **G,
+  double **P,
+  int **Flag
+)
+{
+    int i, j;
+    double dtodx, dtody;
+
+    /******** Calculate dt/dx and dt/dy (it is the same for each element) ********/
+    dtodx = dt/dx;
+    dtody = dt/dy;
+
+    /******** Calculate u in step next step ********/
+    for(i = 1; i < imax; i++)
+    {
+        for(j = 1; j < jmax+1; j++)
+        {
+            if (Flag[i][j] >= C_F && Flag[i+1][j] >= C_F){
+                 U[i][j] = F[i][j] - dtodx*(P[i+1][j] - P[i][j]);
+            }
+        }
+    }
+
+    /******** Calculate v in step next step ********/
+    for(i = 1; i < imax + 1; i++)
+    {
+        for(j = 1; j < jmax; j++)
+        {
+            if (Flag[i][j] >= C_F && Flag[i][j+1] >= C_F){
+                V[i][j] = G[i][j] - dtody*(P[i][j+1] - P[i][j]);
+            }
+        }
+    }
+}
+
+void calculate_rs(double dt, double dx, double dy, int imax, int jmax,
+  double **F, double **G,double **RS, int **Flag)
+{
+	/* right hand side of formula 11 */
+	int i;
+	int j;
 
 	for (j = 1; j <= jmax; j++)
 	for (i = 1; i <= imax; i++)
 	{
-		/* calculate for neighboring fluid cells */
-		if ((i <= imax - 1)  && (Flag[i+1][j] == C_F && Flag[i][j] == C_F))
-		{
-			U[i][j] = F[i][j] - dtdx * (P[i + 1][j] - P[i][j]);
-		}
-		if ((j <= jmax - 1) && (Flag[i][j+1] == C_F && Flag[i][j] == C_F))
-		{
-			V[i][j] = G[i][j] - dtdy * (P[i][j + 1] - P[i][j]);
-		}
-	}
-	/* treat obstacle boundaries, see 1.4 to 1.6 TODO Unperformant!? */
-	for(j = 1; j <= jmax; j++)
-	for(i = 1; i <= imax; i++)
-	{
-		switch(Flag[i][j])
-		{
-		case B_N:
-			V[i][j] = 0;
-			U[i-1][j] = -U[i-1][j+1];
-			U[i][j] = -U[i][j+1];
-			break;
-		case B_S:
-			V[i][j-1] = 0;
-			U[i-1][j] = -U[i-1][j-1];
-			U[i][j] = -U[i][j-1];
-			break;
-		case B_W:
-			U[i-1][j] = 0;
-			V[i][j-1] = -V[i-1][j-1];
-			V[i][j] = -V[i-1][j];
-			break;
-		case B_O:
-			U[i][j] = 0;
-			V[i][j-1] = -V[i+1][j-1];
-			V[i][j] = -V[i+1][j];
-			break;
-		case B_NO:
-			U[i][j] = 0;
-			U[i-1][j] = -U[i-1][j+1];
-			V[i][j] = 0;
-			V[i][j-1] = -V[i+1][j-1];
-			break;
-		case B_NW:
-			U[i-1][j] = 0;
-			U[i][j] = -U[i][j+1];
-			V[i][j] = 0;
-			V[i][j-1] = -V[i-1][j-1];
-			break;
-		case B_SO:
-			U[i][j] = 0;
-			U[i-1][j] = -U[i-1][j-1];
-			V[i][j-1] = 0;
-			V[i][j] = -V[i+1][j];
-			break;
-		case B_SW:
-			U[i-1][j] = 0;
-			U[i][j] = -U[i][j-1];
-			V[i][j-1] = 0;
-			V[i][j] = -V[i-1][j];
-			break;
-		}
+		if (Flag[i][j] == C_F && Flag[i][j+1] == C_F)
+			RS[i][j] = 1 / dt * ((F[i][j] - F[i - 1][j]) / dx + (G[i][j]
+					   - G[i][j - 1]) / dy);
 	}
 }

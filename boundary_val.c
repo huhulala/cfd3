@@ -2,10 +2,15 @@
 #include "NSDefinitions.h"
 #include <string.h>
 
-void boundaryvalues(int imax, int jmax, double **U, double **V, int wl, int wr, int wt, int wb)
+/**
+ * The boundary values of the problem are set.
+ */
+void boundaryvalues(int imax,int jmax, int wl, int wr, int wt, int wb, double **U, double **V,
+	 double **F, double **G,double **P, int** Flag)
 {
-	int i;
-	int j;
+    int i = 0;
+    int j = 0;
+
 	for(i=1; i<=imax; i++)
 	{
 		/* lower bounder */
@@ -78,50 +83,77 @@ void boundaryvalues(int imax, int jmax, double **U, double **V, int wl, int wr, 
 				break;
 		}
 	}
+
+
+    /* set the values of the inner obstacles */
+	/* treat obstacle boundaries, see 1.4 to 1.6 TODO Unperformant!? */
+	for(j = 1; j <= jmax; j++)
+	for(i = 1; i <= imax; i++)
+	{
+		switch(Flag[i][j])
+		{
+		case B_N:
+			V[i][j] = 0;
+			U[i-1][j] = -U[i-1][j+1];
+			U[i][j] = -U[i][j+1];
+			break;
+		case B_S:
+			V[i][j-1] = 0;
+			U[i-1][j] = -U[i-1][j-1];
+			U[i][j] = -U[i][j-1];
+			break;
+		case B_W:
+			U[i-1][j] = 0;
+			V[i][j-1] = -V[i-1][j-1];
+			V[i][j] = -V[i-1][j];
+			break;
+		case B_O:
+			U[i][j] = 0;
+			V[i][j-1] = -V[i+1][j-1];
+			V[i][j] = -V[i+1][j];
+			break;
+		case B_NO:
+			U[i][j] = 0;
+			U[i-1][j] = -U[i-1][j+1];
+			V[i][j] = 0;
+			V[i][j-1] = -V[i+1][j-1];
+			break;
+		case B_NW:
+			U[i-1][j] = 0;
+			U[i][j] = -U[i][j+1];
+			V[i][j] = 0;
+			V[i][j-1] = -V[i-1][j-1];
+			break;
+		case B_SO:
+			U[i][j] = 0;
+			U[i-1][j] = -U[i-1][j-1];
+			V[i][j-1] = 0;
+			V[i][j] = -V[i+1][j];
+			break;
+		case B_SW:
+			U[i-1][j] = 0;
+			U[i][j] = -U[i][j-1];
+			V[i][j-1] = 0;
+			V[i][j] = -V[i-1][j];
+			break;
+		}
+	}
 }
 
-
-void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V,double Re,double dp)
+void spec_boundary_val(char *problem,int imax, int jmax, double dx, double dy,
+    double Re, double deltaP, double **U, double **V, double **P )
 {
-	int i,j;
-	//double Re, dp;
-	/* TODO: wo kommen Re und P her? */
-	//Re = 10;
-	//dp = 4;
-	if(strcmp(problem, "drivencavity")==0)
-	{
-		for(i=0; i<imax+1; i++)
-		{
-			U[i][jmax] = -U[i][jmax-1] + 2;
-		}
-	}
-	else if(strcmp(problem, "karman")==0)
-	{
-		for(j=0; j<jmax+2; ++j)
-		{
-			U[0][j] = 1;
-			V[0][j] = 0;
-		}
-	}
-	else if(strcmp(problem, "plane")==0)
-	{
-		for(j=0; j<jmax+2; ++j)
-		{
-			U[0][j] = -0.5 * Re * dp * j * (j-jmax);
-			V[0][j] = 0;
-		}
-	}
-	else if(strcmp(problem, "step")==0)
-	{
-		for(j=0; j<(jmax+2)/2; ++j)
-		{
-			U[0][j] = 1;
-			V[0][j] = 0;
-		}
-		for(j=(jmax+2)/2+1; j<jmax+2; ++j)
-		{
-			U[0][j] = 0;
-			V[0][j] = 0;
-		}
-	}
+    int j = 0;
+    double dpdx;
+
+    if (strcmp(problem, "karman") == 0) {
+        for(j = 1; j <= jmax; ++j)
+        {
+        	/* set karman inflow */
+            U[0][j] = 1.0;
+            V[0][j] = 0.0;
+        }
+    }
+
 }
+

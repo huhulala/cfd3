@@ -33,7 +33,7 @@ double d2vdy2(int i, int j, double **V, double dy) {
 	return (V[i][j - 1] - 2 * V[i][j] + V[i][j + 1]) / (dy * dy);
 }
 
-double  duvdx( int i,  int j,  double **U, double **V, double dx, double dy, double alpha ){
+double  duvdx( int i,  int j,  double **U, double **V, double dx, double alpha ){
 	return (1/dx*((U[i][j] + U[i][j+1])*(V[i][j] + V[i+1][j])/4 -
 			(U[i-1][j] + U[i-1][j+1])*(V[i-1][j] + V[i][j])/4) +
 			alpha/dx * (fabs(U[i][j] + U[i][j+1])*(V[i][j] - V[i+1][j])/4 -

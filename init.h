@@ -73,12 +73,20 @@ void init_uvp(
   double PI,
   int imax,
   int jmax,
+  char* problem,
   double **U,
   double **V,
   double **P
 );
 
-int init_flag(int **Problem,int imax,int jmax, int **Flag);
-
+/**
+ * Initializes the FLAG field
+**/
+int init_flag(
+    int **Problem,
+    int imax,
+    int jmax,
+    int **Flag
+);
 #endif
 

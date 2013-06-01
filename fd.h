@@ -39,7 +39,7 @@ double  dv2dy( int i,  int j,  double **V, double dy, double alpha );
 /**
  *  duv/dx
  */
-double  duvdx( int i,  int j,  double **U, double **V, double dx, double dy, double alpha );
+double  duvdx( int i,  int j,  double **U, double **V, double dx,double alpha );
 
 
 #endif /* FD_H_ */
