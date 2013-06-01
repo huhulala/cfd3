@@ -90,6 +90,7 @@ int main(int argn, char** args)
 	}
 
 	/*************** parameter loading and problem input goes here *************************/
+
 	t = 0.0;
 	n = 0;
 	problem = args[1];
@@ -126,6 +127,7 @@ int main(int argn, char** args)
 	F = matrix(0, imax + 1, 0, jmax + 1);
 	G = matrix(0, imax + 1, 0, jmax + 1);
 	RS = matrix(0, imax + 1, 0, jmax + 1);
+
 	/* allocate memory for the field */
 	Flag = imatrix(0, imax + 1, 0, jmax + 1);
 
@@ -146,7 +148,6 @@ int main(int argn, char** args)
 	while (t < t_end)
 	{
 		/*calculate the timestep */
-		//calculate_dt( Re, tau, &dt, dx, dy, imax, jmax, U, V);
         calculate_dt(Re, tau,&dt, dx, dy, imax,jmax, U,V);
 		/*calculate the boundary values   */
 		boundaryvalues( imax, jmax, wl, wr, wt, wb, U, V, F, G, P, Flag);
@@ -162,7 +163,6 @@ int main(int argn, char** args)
 		/* set initial residual*/
 		it = 0;
 		res = eps + 1;
-
 		while (it < itermax && res > eps)
 		{
 			/* here the signature was extended to the FLAG
@@ -172,7 +172,7 @@ int main(int argn, char** args)
 		}
 		/* calculate uv - here the signature was extended to the FLAG
 	     * matrix to calculate values only for fluid cells */
-	     calculate_uv(dt,dx,dy,imax,jmax, U, V, F, G, P, Flag);
+	    calculate_uv(dt,dx,dy,imax,jmax, U, V, F, G, P, Flag);
 
 	 	t = t + dt;
 	 	printf("t=%f dt=%f\n",t,dt);
@@ -181,9 +181,6 @@ int main(int argn, char** args)
 	 		write_vtkFile(output_filename_array, n, imax, jmax, dx, dy, U, V, P);
 	 		n++;
 	 	}
-
-
-
 	}
 	write_vtkFile(output_filename_array, n, imax, jmax, dx, dy, U, V, P);
 

@@ -52,6 +52,7 @@ void sor(double omg, double dx, double dy, int imax, int jmax, double **P,
 	}
 	for (j = 1; j <= jmax; j++)
 	{
+		/* Dirichet boundary conditons */
 		if (strcmp(problem, "plane") == 0)
 		{
 			P[0][j] = 2 * deltaP - P[1][j];

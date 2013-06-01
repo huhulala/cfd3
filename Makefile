@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -O0 -Wextra
+CFLAGS = -Wall -pedantic -Werror
 .c.o:  ; $(CC) -c $(CFLAGS) $<
 
 OBJ = 	helper.o\

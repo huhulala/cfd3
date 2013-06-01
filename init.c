@@ -70,7 +70,8 @@ void init_uvp(double UI, double VI, double PI, int imax, int jmax,
 		V[i][j] = VI;
 		P[i][j] = PI;
 	}
-
+	/* set step initial values -
+	 * half of the domain must set to zero  */
     if (strcmp(problem, "step") == 0)
     {
         for (i = 0; i <= imax + 1; ++i)
@@ -92,7 +93,6 @@ int init_flag(int **Problem,int imax,int jmax, int **Flag)
     	if(Problem[i][j] != 0 )
     		Problem[i][j] = 1;
     }
-
 
     for(i = 1; i < imax+1; i++)
     for(j = 1; j < jmax+1; j++)

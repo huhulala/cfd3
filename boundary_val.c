@@ -86,7 +86,7 @@ void boundaryvalues(int imax,int jmax, int wl, int wr, int wt, int wb, double **
 
 
     /* set the values of the inner obstacles */
-	/* treat obstacle boundaries, see 1.4 to 1.6 TODO Unperformant!? */
+	/* treat obstacle boundaries, see 1.4 to 1.6 */
 	for(j = 1; j <= jmax; j++)
 	for(i = 1; i <= imax; i++)
 	{
@@ -156,22 +156,25 @@ void spec_boundary_val(char *problem,int imax, int jmax, double dx, double dy,
     {
     	for(j=1; j<jmax+1; ++j)
     	{
+        	/* set plane inflow */
     		U[0][j] = -0.5 * Re * deltaP * j * (j-jmax);
     		V[0][j] = 0;
     	}
     }
 	else if(strcmp(problem, "step")==0)
 	{
-		for(j=1; j<(jmax+2)/2; ++j)
-		{
-			U[0][j] = 0.0;
-			V[0][j] = 0.0;
-		}
+		/* set step inflow - only upper half */
 		for(j=(jmax+2)/2+1; j<jmax+1; ++j)
 		{
 			U[0][j] = 1.0;
 			V[0][j] = 0.0;
 		}
+		for(j=1; j<(jmax+2)/2; ++j)
+		{
+			U[0][j] = 0.0;
+			V[0][j] = 0.0;
+		}
+
 	}
 }
 
