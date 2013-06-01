@@ -81,31 +81,27 @@ void boundaryvalues(int imax, int jmax, double **U, double **V, int wl, int wr, 
 }
 
 
-void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V,double Re,double dp)
+void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V, double Re, double dp)
 {
 	int i,j;
-	//double Re, dp;
-	/* TODO: wo kommen Re und P her? */
-	//Re = 10;
-	//dp = 4;
 	if(strcmp(problem, "drivencavity")==0)
 	{
-		for(i=0; i<imax+1; i++)
+		for(i=1; i<imax+1; i++)
 		{
 			U[i][jmax] = -U[i][jmax-1] + 2;
 		}
 	}
 	else if(strcmp(problem, "karman")==0)
 	{
-		for(j=0; j<jmax+2; ++j)
+		for(j=1; j<jmax+1; ++j)
 		{
-			U[0][j] = 1;
+			U[0][j] = -U[1][j] + 2;
 			V[0][j] = 0;
 		}
 	}
 	else if(strcmp(problem, "plane")==0)
 	{
-		for(j=0; j<jmax+2; ++j)
+		for(j=1; j<jmax+1; ++j)
 		{
 			U[0][j] = -0.5 * Re * dp * j * (j-jmax);
 			V[0][j] = 0;
@@ -113,12 +109,12 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 	}
 	else if(strcmp(problem, "step")==0)
 	{
-		for(j=0; j<(jmax+2)/2; ++j)
+		for(j=1; j<(jmax+2)/2; ++j)
 		{
 			U[0][j] = 1;
 			V[0][j] = 0;
 		}
-		for(j=(jmax+2)/2+1; j<jmax+2; ++j)
+		for(j=(jmax+2)/2+1; j<jmax+1; ++j)
 		{
 			U[0][j] = 0;
 			V[0][j] = 0;

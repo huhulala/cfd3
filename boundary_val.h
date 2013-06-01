@@ -18,13 +18,17 @@ void boundaryvalues(
 
 /**
  * Set additional boundary condidtions according to problem
+ * Re and dp as extra parameters, because they are needed for the
+ * Plane shear flow borders
  */
 void spec_boundary_val(
 		char *problem,
 		int imax,
 		int jmax,
 		double **U,
-		double **V
+		double **V,
+		double Re,
+		double dp
 		);
 
 #endif

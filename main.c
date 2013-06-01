@@ -138,7 +138,7 @@ int main(int argn, char** args)
 		/*calculate the boundary values*/
 		boundaryvalues(imax, jmax, U, V, wl, wr, wt, wb);
 		/* set special boundary values */
-		spec_boundary_val(problem, imax, jmax, U, V);
+		spec_boundary_val(problem, imax, jmax, U, V, Re, deltaP);
 		/*calculate F&G*/
 		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G,
 				Flag);
