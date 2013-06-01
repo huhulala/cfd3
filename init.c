@@ -73,8 +73,8 @@ void init_uvp(double UI, double VI, double PI, int imax, int jmax,
 
     if (strcmp(problem, "step") == 0)
     {
-        for (i = 0; i <=imax + 1; ++i)
-        for (j = 0; j < jmax/2; ++j)
+        for (i = 0; i <= imax + 1; ++i)
+        for (j = 0; j < (jmax+2)/2; ++j)
         	U[i][j] = 0;
     }
 }

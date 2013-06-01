@@ -144,8 +144,6 @@ void spec_boundary_val(char *problem,int imax, int jmax, double dx, double dy,
     double Re, double deltaP, double **U, double **V, double **P )
 {
     int j = 0;
-    double dpdx;
-
     if (strcmp(problem, "karman") == 0) {
         for(j = 1; j <= jmax; ++j)
         {
@@ -154,6 +152,26 @@ void spec_boundary_val(char *problem,int imax, int jmax, double dx, double dy,
             V[0][j] = 0.0;
         }
     }
-
+    else if(strcmp(problem, "plane")==0)
+    {
+    	for(j=1; j<jmax+1; ++j)
+    	{
+    		U[0][j] = -0.5 * Re * deltaP * j * (j-jmax);
+    		V[0][j] = 0;
+    	}
+    }
+	else if(strcmp(problem, "step")==0)
+	{
+		for(j=1; j<(jmax+2)/2; ++j)
+		{
+			U[0][j] = 0.0;
+			V[0][j] = 0.0;
+		}
+		for(j=(jmax+2)/2+1; j<jmax+1; ++j)
+		{
+			U[0][j] = 1.0;
+			V[0][j] = 0.0;
+		}
+	}
 }
 
