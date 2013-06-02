@@ -52,7 +52,9 @@ void sor(double omg, double dx, double dy, int imax, int jmax, double **P,
 	}
 	for (j = 1; j <= jmax; j++)
 	{
-		/* Dirichet boundary conditons */
+		/* Dirichet boundary conditons -
+		 *  this is not very sophisticated; the sor
+		 *  should be problem independet*/
 		if (strcmp(problem, "plane") == 0)
 		{
 			P[0][j] = 2 * deltaP - P[1][j];
@@ -65,7 +67,7 @@ void sor(double omg, double dx, double dy, int imax, int jmax, double **P,
 		}
 	}
 
-	/*  obstacle boundary values */
+	/*  obstacle boundary pressure values */
 	for (i = 1; i <= imax; ++i)
 	for (j = 1; j <= jmax; ++j)
 	{

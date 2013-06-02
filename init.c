@@ -97,19 +97,22 @@ int init_flag(int **Problem,int imax,int jmax, int **Flag)
     for(i = 1; i < imax+1; i++)
     for(j = 1; j < jmax+1; j++)
     {
-        if(Problem[i][j] == 1) /* all fluid cells to C_F */
+        if(Problem[i][j] == 1)
         {
+        	/* set all fluid cells to C_F */
         	Flag[i][j] = C_F;
         }
-        else   /* 8*east + 4*west + 2*south + 1*north */
+        else
         {
+        	/* calculate flag here: 8*east + 4*west + 2*south + 1*north */
          	Flag[i][j] = 8 * Problem[i][j-1] + 4 * Problem[i][j+1] + 2 * Problem[i+1][j] + 1 * Problem[i-1][j];
-            /* is flag valid */
+            /* test if flag is valid */
             if(Flag[i][j] == 3 || Flag[i][j] == 7 || Flag[i][j] == 11 || Flag[i][j] == 12 || Flag[i][j] == 13 || Flag[i][j] == 14 || Flag[i][j] == 15)
             	return -1;
         }
     }
 
+    /*boundary cells*/
     for(i = 1; i < imax+1; i++)
     {
         Flag[i][0] = 8 * Problem[i][1];
